@@ -1,3 +1,4 @@
+// Functions
 function secondsTimeSpanToMMSS(seconds)
 {
     var minutes = Math.floor(seconds / 60);
@@ -7,9 +8,47 @@ function secondsTimeSpanToMMSS(seconds)
     return (minutes < 10 ? '0' + minutes : minutes)+":"+(seconds < 10 ? '0' + seconds : seconds); //zero padding on minutes and seconds
 }
 
+// jQuery Extensions
+(function(old) {
+  $.fn.attr = function() {
+    if(arguments.length === 0) {
+      if(this.length === 0) {
+        return null;
+      }
+
+      var obj = {};
+      $.each(this[0].attributes, function() {
+        if(this.specified) {
+          obj[this.name] = this.value;
+        }
+      });
+      return obj;
+    }
+
+    return old.apply(this, arguments);
+  };
+})($.fn.attr);
+
 $(document).ready(function()
 {
-    var audio_flats = $(".audio-flat");
+    var audio_flats = $("audio.flat");
+    $.each(audio_flats, function(index, audio_flat)
+    {
+        $(audio_flat).replaceWith(function()
+        {
+            var replacementDiv = $("<div />", $(audio_flat).attr());
+            replacementDiv.addClass("audio-flat");
+            replacementDiv.removeClass("flat");
+
+            replacementDiv.append($("<a class='play' id='play-pause'/>"));
+            replacementDiv.append($("<input type='range' id='seek' value='0'/>"));
+            replacementDiv.append($("<span id='duration'>00:00</span>"));
+
+            return replacementDiv;
+        });
+    });
+
+    audio_flats = $(".audio-flat");
     $.each(audio_flats, function(index, audio_flat)
     {
         audio_flat.song = new Audio($(audio_flat).attr("src"));
